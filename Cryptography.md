@@ -1,10 +1,41 @@
 # Cryptography
 
+## Symbols and Expressions
+
+Symbol | Explanation
+----|----
+A | Alice, the sender/initializer
+B | Bob, the receiver
+Z | the unknown Z
+K | Key, for encryption/decryption/signature
+M | Message, for communication
+Ma | Message from Alice
+UA | public key of Alice
+IA | private key of Alice
+IAM | message encrypted with Alice's public key
+IAK | a special key encrypted with Alice's public key
+IAMb | message from Bob encrypted with Alice's public key
+
+Expression | Explanation
+----|----
+`>:` | operation of Alice
+`<:` | operation of Bob
+`=:` | operation of Z
+`.` | data fetching/saving
+`+` | encryption/signing
+`-` | decryption/verisigning
+`]` | message sending
+`x` | interception
+function(arg) -> result | `function` with `arg` as input generates `result`, which is used as an alias for convenience afterwards
+func1(arg1).func2(arg2) > output | after a series of operations, we get an `output` 
+
+
+
 ## Key Exchange
 
 - Symmetric Crypto
 
-            >: . fetchFrom(Trent).forSessionKeyWith(B) > IAK, IBK
+            >: . fetchFrom(Trust).forSessionKeyWith(B) > IAK, IBK
             >: - decrypt(IAK).withKey(IA) > K
             >: ] sendTo(B).with(IBK)
             
