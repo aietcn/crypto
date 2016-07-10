@@ -6,6 +6,7 @@ Symbol | Explanation
 ----|----
 A | Alice, the sender/initializer
 B | Bob, the receiver
+T | Trust, a trusted agent or server
 Z | the unknown Z
 K | Key, for encryption/decryption/signature
 M | Message, for communication
@@ -20,7 +21,8 @@ Expression | Explanation
 ----|----
 `>:` | operation of Alice
 `<:` | operation of Bob
-`=:` | operation of Z
+`=:` | operation of Trust
+`≠:` | operation of Z
 `.` | data fetching/saving
 `+` | encryption/signing
 `-` | decryption/verisigning
@@ -29,6 +31,15 @@ Expression | Explanation
 function(arg) -> result | `function` with `arg` as input generates `result`, which is used as an alias for convenience afterwards
 func1(arg1).func2(arg2) > output | after a series of operations, we get an `output` 
 
+## Summary 
+
+### Protocols
+
+### Algorithms
+
+### Man in the Middle Attack
+
+> a man-in-the-middle attack can defeat any protocol that doesn’t involve a secret of some kind.
 
 
 ## Key Exchange
@@ -55,19 +66,19 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
     **MitM from Z**
     
             >: ] sendTo(B).with(UA)
-            =: x itcpt(UA)
-            =: ] sendTo(B).with(UZ)
+            ≠: x itcpt(UA)
+            ≠: ] sendTo(B).with(UZ)
             
             <: ] sendTo(A).with(UB)
-            =: x itcpt(UB)
-            =: ] sendTo(A).with(UZ)
+            ≠: x itcpt(UB)
+            ≠: ] sendTo(A).with(UZ)
             
             >: + encrypt(M).withKey(UZ) > IZM
             >: ] sendTo(B).with(IZM)
-            =: x itcpt(IZM)
-            =: - decrypt(IZM).withKey(UZ) > M
-            =: + encrypt(M').withKey(UA) > IAM'
-            =: ] sendTo(B).with(IAM')
+            ≠: x itcpt(IZM)
+            ≠: - decrypt(IZM).withKey(UZ) > M
+            ≠: + encrypt(M').withKey(UA) > IAM'
+            ≠: ] sendTo(B).with(IAM')
             
             <: - decrypt(IAM').withKey(IA) > M'
             
@@ -118,4 +129,121 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
 
 ## Authentication
 
-- One-way hash
+- public-key
+
+            >: + encrypt(A.rand()).withKey(IA) > IK
+            >: ] sendTo(host).with(IK)
+            
+            <: ] sendTo(A).with(host.rand()->HK)
+            
+            >: + encrypt(K, HK).withKey(IA) > IK'
+            >: ] sendTo(host).with(IK')
+            
+### Authentication with key exchange
+
+- Wide-Mouth Frog (symmetric key management with a trusted server)
+
+            >: + encrypt(timestamp,B,SK).withKey(Ka) > Ma
+            >: ] sendTo(Trust).with(Ma)
+            
+            =: - decrypt(M).withKey(Ka) > timestamp, B, SK
+            =: + encrypt(timestamp,A,SK).withKey(Kb) > Mb
+            =: ] sendTo(B).with(Mb)
+            
+- Yahalom
+
+            >: ] sendTo(B).with(A,A.rand()->Ra)
+            
+            <: + encrypt(A,Ra,B.rand()->Rb).withKey(Kb) > Mb
+            <: ] sendTo(Trust).with(Mb)
+            
+            =: - decrypt(Mb).withKey(Kb) > A,Ra,Rb
+            =: + encrypt(B,Ra,Rb,SK).withKey(Ka) > M'a
+            =: + encrypt(A,SK).withKey(Kb) > M'b
+            =: ] sendTo(A).with(M'a,M'b)
+            
+            >: - decrypt(M'a).withKey(Ka) > Ra, Rb, SK
+            >: + encrypt(Rb).withKey(SK) > RbM
+            >: ] sendTo(B).with(M'b).and(RbM)
+            
+            <: - decrypt(M'b).withKey(Kb) > A, SK
+            <: - decrypt(RbM).with(SK) > Rb
+            
+- Needham-Schroeder (symmetric cryptography with trusted server)
+
+            >: ] sendTo(Trust).with(A,B,A.rand()->Ra)
+            
+            =: + encrypt(SK, A).withKey(Kb) > Mb
+            =: + encrypt(Ra, B, SK).withKey(Ka) > Ma
+            =: ] sendTo(A).with(Ma, Mb)
+            
+            >: - decrypt(Ma).withKey(Ka) > Ra, B, SK, Mb
+            >: ] sendTo(B).with(Mb)
+            
+            <: - decrypt(Mb).withKey(Kb) > SK, A
+            <: + encrypt(B.rand()->Rb).withKey(SK) > M'b
+            <: ] sendTo(A).with(M'b)
+            
+            // prevent replay attacks
+            >: - decrypt(M'b).withKey(SK) > Rb
+            >: + encrypt(Rb-1).withKey(SK) > M'a
+            
+            <: - decrypt(M'a).withKey(SK) > Rb-1
+
+- Otway-Rees (an optimized version of Needham-Schroeder)
+
+            >: + encrypt(A,B,A.rand()->Ra,A.index()->Ia).withKey(Ka) > Ma
+            >: ] sendTo(B).with(Ia,A,Ma)
+            
+            <: + encrypt(B,A,B.rand()->Rb,Ia).withKey(Kb) > Mb
+            <: ] sendTo(Trust).with(Mb,Ma,Ia,B,A)
+            
+            =: - decrypt(Ma).withKey(Ka) > Ia, Ra, A
+            =: - decrypt(Mb).withKey(Kb) > Ia, Rb, B
+            =: + encrypt(Ra,SK).withKey(Ka) > M'a
+            =: + encrypt(Rb,SK).withKey(Kb) > M'b
+            =: ] sendTo(B).with(Ia,M'a,M'b)
+            
+            <: - decrypt(M'b).withKey(Kb) > Rb, SK
+            <: ] sendTo(A).with(M'a, Ia)
+            
+            >: - decrypt(M'a).withKey(Ka) > Ra, SK
+
+- Kerberos (a variant of Needham-Schroeder, requires clock sync)
+
+            >: ] sendTo(Trust).with(A,B)
+            
+            =: + encrypt(A,EXP,timestamp,SK).withKey(Ka) > Ma
+            =: + encrypt(B,EXP,timestamp,SK).withKey(Kb) > Mb
+            =: ] sendTo(A).with(Ma,Mb)
+            
+            >: - decrypt(Ma).withKey(Ka) > timestamp,SK
+            >: + encrypt(M).withKey(SK) > KM
+            >: ] sendTo(B).with(KM, Mb)
+            
+            <: - decrypt(Mb).withKey(Kb) > timestamp,SK
+            <: - decrpyt(KM).withKey(SK) > M
+            <: ] sendTo(A).with(encrypt(M',timestamp+1).withKey(SK))
+            
+- Neuman-Stubblebine
+
+            >: ] sendTo(B).with(A,A.rand()->Ra)
+            
+            <: + encrypt(A,Ra,timestamp).withKey(Kb) > Mb
+            <: ] sendTo(Trust).with(Mb,B.rand()->Rb,B)
+            
+            =: - decrypt(Mb).withKey(Kb) > Ra,timestamp,A,B,Rb
+            =: + encrypt(B,Ra,SK,timestamp).withKey(Ka) > M'a
+            =: + encrypt(A,SK,timestamp).withKey(Kb) > M'b
+            =: ] sendTo(A).with(M'a,M'b,Rb)
+            
+            >: - decrypt(M'a).withKey(Ka) > Ra,SK,timestamp
+            >: + encrypt(Rb).withKey(SK) > KM
+            >: ] sendTo(B).with(KM,M'b)
+            
+            <: - decrypt(M'b).withKey(Kb) > SK,timestamp
+            <: - decrypt(KM).withKey(SK) > Rb
+
+- DASS
+- Denning-Sacco
+- Woo-Lam
