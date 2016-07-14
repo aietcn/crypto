@@ -275,15 +275,41 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
 
 ### Kerberos
 
+- TGS: Ticket Granting Service, and Authenticator
+
+            >: ] requestTicket(Srv).from(TGS)
             
+            =: + encrypt(C,CADDR,VLD,SK).withKey(ISrv) > Tkt
+            =: + encrypt(Tkt).withKey(IC) > ITkt
+            =: ] sendTo(C).with(ITkt)
+            
+            >: - decrypt(ITkt).withKey(IC) > Tkt
+            >: + encrypt(C,timestamp,?).withKey(SK) > AUTH
+            >: ] requestAccess(Srv).with(AUTH,Tkt)
+            
+            <: - decrypt(Tkt).withKey(ISrv) > C,CADDR,VLD,SK
+            <: - decrypt(AUTH).withKey(SK) > timestamp, C, ?
+
+#### For Version 5
+
+- Initial Ticket
+
+            >: ] sendTo(KBRS).with(C)
+            
+            =: . checkExistence(C).in(DB)
+            =: + encrypt(gen(SK).for(TGS)->STGT).withKey(IC) > ISTGT
+            =: + encrypt(gen(SK).for(C)->CTGT).withKey(ITGS) > ICTGT
+            =: ] sendTo(C).with(ISTGT, ICTGT)
+            
+            >: - decrypt(ISTGT).withKey(IC) > STGT
 
 ### PEM
 
 ### PGP
 
+** Web of Trust **
+
 ### Smart Cards
-
-
 
 ### SSL
 
