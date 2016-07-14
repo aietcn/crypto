@@ -1,5 +1,9 @@
 # Cryptography
 
+## Summary 
+
+See [mind map of cryptography](crypt_brief.pdf).
+
 ## Symbols and Expressions
 
 Symbol | Explanation
@@ -31,16 +35,9 @@ Expression | Explanation
 function(arg) -> result | `function` with `arg` as input generates `result`, which is used as an alias for convenience afterwards
 func1(arg1).func2(arg2) > output | after a series of operations, we get an `output` 
 
-## Summary 
-
-### Protocols
-
-### Algorithms
-
 ### Man in the Middle Attack
 
 > a man-in-the-middle attack can defeat any protocol that doesn’t involve a secret of some kind.
-
 
 ## Key Exchange
 
@@ -244,6 +241,81 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
             <: - decrypt(M'b).withKey(Kb) > SK,timestamp
             <: - decrypt(KM).withKey(SK) > Rb
 
-- DASS
-- Denning-Sacco
-- Woo-Lam
+
+## Real world practice
+
+### ISDN
+
+- Calling
+
+            >: + encrypt(Ka).with(Pa)
+            >: ] initCall(B)
+            
+            >< Y exchangeSessionKeyUsing(UA,UB) > SK
+            
+            >: + sign(Cert,AUTH).withKey(NetK) > NetSA
+            >: ] sendTo(B).with(ACert,BAUTH,NetSA)
+            
+            <: - verifySign(NetSA).of(ACert,AAUTH).withKey(NetK)
+            
+            <> Y challengeReplyFor(A.PhoneK, UA)
+            
+            <: . ring(B.phoner)
+            <: . authenticate(B)
+            <: + sign(BCert,BAUTH).withKey(NetK) > NetSB
+            <: ] sendTo(A).with(BCert,BAUTH,NetSB)
+            
+            >: - verifySign(NetSB).of(BCert,BAUTH).withKey(NetK)
+
+            <> Y challengeReplyFor(B.PhoneK, UB)
+            
+            <><><>
+            
+            >< . hangPhone(A,B).thenDel(SK,ACert,BCert)
+
+### Kerberos
+
+            
+
+### PEM
+
+### PGP
+
+### Smart Cards
+
+
+
+### SSL
+
+
+
+### Wechat
+
+- Authentication
+
+            >: ] sendTo(B).with(A,A.rand()->T,K)[https]
+            
+            <: + sha1(T,B.rand()->Rb,timestamp) > Sb
+            <: ] sendTo(A).with(Sb, Mb)
+            
+            >: - verifySign(Sb).with(T,Rb,timestamp)
+            >: ] sendTo(B).with(Mb)
+
+- Message Response
+
+            // secure mode
+            <: + encrypt(M).withKey(K) > KM
+            <: ] sendTo(A).with(KM)
+
+            >: - decrypt(KM).withKey(K) > M
+            
+- Access Token (**Vulnerable to MitM attack**)
+
+            >: ] sendTo(B).with(A, Ka)
+            
+            <: ] sendTo(A).with(accessToken, expire)
+
+
+
+
+            
