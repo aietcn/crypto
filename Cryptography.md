@@ -273,7 +273,7 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
             
             >< . hangPhone(A,B).thenDel(SK,ACert,BCert)
 
-### Kerberos
+### Kerberos: a single,powerful,hard to implement KDC
 
 - TGS: Ticket Granting Service, and Authenticator
 
@@ -303,17 +303,54 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
             
             >: - decrypt(ISTGT).withKey(IC) > STGT
 
+
+#### Drawbacks
+
+    a single KDC with large table storing all public keys and generate session keys for all.
+    
+- KDC could be a SPoF, bottlenech of the network
+
 ### PEM
 
 ### PGP
 
-** Web of Trust **
+**Web of Trust**
+
+Everyone can generate,distribute self-own keys, choose to trust whoever it want to trust
 
 ### Smart Cards
 
 ### SSL
 
+- How to manage public keys?
 
+CA: issue and store `principle : public-key`, sign public-keys with CA's private-key for verification
+
+- How to make CA scalable?
+
+distribute public-keys of CAs in clients - in storage
+
+- How to revoke public keys?
+
+    - CRL(certificate revokation list: this could be a large un-maintaineble list)
+    
+    - OCSP(online certificate status protocol: latency, SPoF)
+    - built into clients (browsers, systems)
+
+    CA-signed certificates valid through a long time.
+
+- Key Generation
+
+            >: session key initiated by A
+            <: B take part in sesison key generation with nonce
+            >: A sign the session key
+
+**Web Protection**
+
+- Data on network: SSL/TLS
+- Code/data in browser: HTTPS(certificate for hostname, cookies, )
+- UI: lock icon + URL 
+- DNS hijacking: 
 
 ### Wechat
 
