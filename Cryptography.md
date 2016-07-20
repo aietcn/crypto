@@ -4,6 +4,15 @@
 
 See [mind map of cryptography](crypt_brief.pdf).
 
+### Famous Cyber Security Companies
+
+See [here](http://cybersecurityventures.com/cybersecurity-500/)
+
+### Known Attacks
+
+- Hash Function: [wikipedia](https://en.wikipedia.org/wiki/Hash_function_security_summary)
+- TLS: [wikipedia](https://en.wikipedia.org/wiki/Transport_Layer_Security)
+
 ## Symbols and Expressions
 
 Symbol | Explanation
@@ -243,6 +252,16 @@ func1(arg1).func2(arg2) > output | after a series of operations, we get an `outp
 
 
 ## Real world practice
+
+### Authentication Schemes
+
+#### Password and Secret Key Schemes
+
+##### One-time Password(OTP)
+
+- [S/Key](https://en.wikipedia.org/wiki/S/KEY);
+
+- [Secret Token](https://en.wikipedia.org/wiki/Security_token)
 
 ### ISDN
 
