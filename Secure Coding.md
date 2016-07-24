@@ -66,6 +66,8 @@ SIGUSR2   |   terminate process  |  User defined signal 2
 
 ### GDB
 
+a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gcj), `Perl`, etc.
+
 + Terminal GUI: `gdb -tui`
 
 + Commands for debugging
