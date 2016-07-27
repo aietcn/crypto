@@ -214,3 +214,6 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
 - MALLOC_CHECK
 - mcheck
 
+## Passphrase FAQ
+
+reference: http://www.iusmentis.com/security/passphrasefaq/

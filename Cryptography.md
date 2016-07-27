@@ -397,7 +397,54 @@ distribute public-keys of CAs in clients - in storage
             
             <: ] sendTo(A).with(accessToken, expire)
 
+### MS-CHAPv1
 
+encrypted authentication mechanism
 
+            >: ] request(B)
 
+            <: ] sendTo(A).with(SID,K)
             
+            >: + md4(K) > hK
+            >: + md4(S) > hS
+            >: ] sendTo(A).with(A,hK,SID,hS)
+            
+            <: - md4(K) > hK', md4(S) > hS'
+            <: . hK'==hK? && hS'==hS?
+            
+### MS-CHAPv2
+
+            >: ] request(B)
+            
+            <: ] sendTo(A).with(SID,bK)
+            
+            >: + md4(S) > hS
+            >: + sha(bK,aK,hS,SID) > hA
+            >: ] sendTo(B).with(aK,hA,A)
+            
+            <: + md4(S') > hS'
+            <: + sha(bK,aK,hS',SID) > hA'
+            <: . hA'==hA? > result
+            <: + result==Y? 
+                <: + encrypt(response).withKey(bK) > bR
+                <: ] sendTo(A).with(result,aK,bR,S')
+                
+            >: - decrypt(bR).withKey(bK) > response
+            >: S==S'? && aK?
+            
+
+## Checklist          
+
+Major components of a security system:
+
+- Encryption Cipher
+- Cipher Mode of Operation
+- Hash Algorithms
+- Key Wrap
+- Key Derivation
+
+  
+## Resources
+
+- US Computer Security Resource Center: http://csrc.nist.gov/
+- 
