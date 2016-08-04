@@ -152,11 +152,23 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
     
 + Coredump analysis
     
-    > memory map: `vmmap`(OS X), `/proc/{pid}/maps`(LINUX)
-    > memory: physical > virtual (pages > page table & access permission)
-    > memory partition: kernel > userspace > NULL
-    > **coredump**: code and data in _userspace_
-        
+    - memory map: `vmmap`(OS X), `/proc/{pid}/maps`(LINUX)
+    - memory: physical > virtual (pages > page table & access permission)
+    - memory partition: kernel > userspace > NULL
+    - **coredump**: code and data in _userspace_ , example (with `lldb` on OS X): 
+      
+        - create a core dump manually: `kill -s ABRT {pid}`
+        - load coredump: `lldb -c core.file -f app`
+        - list threads: `thread list`, zoom in a thread: `thread select 3`
+        - thread backtrace: `bt`, all threads' backtrace: `thread backtrace all`
+        - frame information: `frame info`, zoom in a frame: `frame select 2`
+        - disassemble: `di`, using intel flavor: `settings set target.x86-disassembly-flavor intel`
+        - disassemble annotated address to trace symbols: `di -a {addr}`
+        - view secion dump: `image dump sections {app}`
+        - view data with possible symbolic information `x/512a {addr} --force`
+        - dump memory contents: `memory read {addr}`, or `x/100s {addr}`
+        - view loaded modules/libs: `image list`
+  
     > **during your debugging session, you cannot say something like, “This line of source code must be okay, since it didn’t cause a seg fault.”** 
     
     > ex. in C, for a index out of range situation, hardware would not notice until it reaches the end of current memory page (generally 4K)
@@ -216,4 +228,4 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
 
 ## Passphrase FAQ
 
-reference: http://www.iusmentis.com/security/passphrasefaq/
+reference: [Use Secure Passphrase](http://www.iusmentis.com/security/passphrasefaq/)

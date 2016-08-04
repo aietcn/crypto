@@ -4,6 +4,14 @@
 
 See [mind map of cryptography](crypt_brief.pdf).
 
+Major components of a security system:
+
+- Encryption Cipher
+- Cipher Mode of Operation
+- Hash Algorithms
+- Key Wrap
+- Key Derivation
+
 ### Famous Cyber Security Companies
 
 See [here](http://cybersecurityventures.com/cybersecurity-500/)
@@ -12,6 +20,10 @@ See [here](http://cybersecurityventures.com/cybersecurity-500/)
 
 - Hash Function: [wikipedia](https://en.wikipedia.org/wiki/Hash_function_security_summary)
 - TLS: [wikipedia](https://en.wikipedia.org/wiki/Transport_Layer_Security)
+
+**Forums & Discussions**
+
+
 
 ## Symbols and Expressions
 
@@ -432,19 +444,75 @@ encrypted authentication mechanism
             >: - decrypt(bR).withKey(bK) > response
             >: S==S'? && aK?
             
+#### 802.11 PSK: EAPOL (link layer)
 
-## Checklist          
+**EAPOL type**: start, key, packet, asf, logoff
 
-Major components of a security system:
+- Master Session Key: negotiated between supplicant and authentication server
+- Pairwise Master Key: head256bitsOf(MSK)
+- Group Master Key: randomly created
+- Pairwise Transient Key: deviedFrom(PMK, AuthenticatorNonce, SupplicantNonce, Authenticator Address, Supplicant Address)
+    - Key Confirmation Key(for 4-way handshake & Group Key handshake)
+    - Key Encryption Key(for EAPOL frame encryption)
+    - Temporal Key: encrypt/decrypt MSDU of 802.11 data frames
+    - Temporal MIC-1, Temporal MIC-2
+    
+- Group Temporal Key: encrypt all broadcast transmission
 
-- Encryption Cipher
-- Cipher Mode of Operation
-- Hash Algorithms
-- Key Wrap
-- Key Derivation
+            >: ] probeRequest(Supported Data Rates, Station 802.11 Capabilities).toOptional(SSID:B)
+            
+            <: . check(Supported Data Rates, 802.11 Capabilities)
+            <: ] probeResponse(AP 802.11 Capabilities).to(A)
+            
+            >: ] authRequest(SEQ:0x0001).to(B)
+            
+            <: ] authResponse(SEQ:0x0002).to(A) (A authenticated with B)
+            
+            >: ] associateRequest(??)
+            
+            <: ] associateResponse(ASSO:0x0002).to(A) (A associated with B)
 
-  
+            <: ] authKeyRequirementTo(A).with(Cipher, CryptType)
+
+            <: . genTmpKey() > bNonce
+            <: ] eapolKey(bNonce).to(A)
+            
+            >: . genTmpKey() > aNonce
+            >: + genTmpKey(bNonce,aNonce,AA,SA,PMK) > PTK
+            >: ] eapolKey(aNonce, aMIC).to(B)
+
+            <: - validate(aMIC)
+            <: . genTmpKey(aNonce,bNonce,AA,SA,PMK) > PTK'
+            <: + encrypt(genKey(GMK) -> GTK).with(PTK') > bGTK
+            <: ] eapolKey(bGTK, bMIC, installTmpKeyMsg)
+            
+            >: - validate(bMIC)
+            >: - decrypt(bGTK).withKey(PTK) > GMK
+            >: . installTmpKey(GMK)
+            >: ] eapolKey(MIC).to(B) (GMK installed, start encrypted transmission)
+
+
+**Following works are done during 4-way handshake**
+
+1. Confirm that live peer holds PMK
+2. Confirm that PMK is current.
+3. Derive a fresh PTK from PMK & Install the pairwise encryption & integrity keys into 802.11
+4. Transport the GTK & GTK sequence number from Authenticator to Supplicant & install them in Supplicant & AP(if not already installed)
+5. Confirm cipher suite selection.
+
+
+## Analysis
+
+### 802.11 Frame Capture using Wireshark
+
+1. enable WLAN's monitor mode
+2. enable IEEE 802.11 protocol capturing
+3. set decrypt key (decryption frames should include `EAPOL` frames first)
+4. start capturing before AP-STA authentication
+
+
 ## Resources
 
 - US Computer Security Resource Center: http://csrc.nist.gov/
-- 
+- 802.11 decryption with WireShark: https://wiki.wireshark.org/HowToDecrypt802.11
+- 4-way handshake: https://mrncciew.com/2014/08/19/cwsp-4-way-handshake/, http://etutorials.org/Networking/802.11+security.+wi-fi+protected+access+and+802.11i/Part+II+The+Design+of+Wi-Fi+Security/Chapter+10.+WPA+and+RSN+Key+Hierarchy/Details+of+Key+Derivation+for+WPA/
