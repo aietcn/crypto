@@ -159,15 +159,23 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
       
         - create a core dump manually: `kill -s ABRT {pid}`
         - load coredump: `lldb -c core.file -f app`
+        - view loaded modules/libs: `image list`
         - list threads: `thread list`, zoom in a thread: `thread select 3`
-        - thread backtrace: `bt`, all threads' backtrace: `thread backtrace all`
+        - thread backtrace: `bt`, all threads' backtraces(frames): `thread backtrace all`
         - frame information: `frame info`, zoom in a frame: `frame select 2`
         - disassemble: `di`, using intel flavor: `settings set target.x86-disassembly-flavor intel`
         - disassemble annotated address to trace symbols: `di -a {addr}`
         - view secion dump: `image dump sections {app}`
-        - view data with possible symbolic information `x/512a {addr} --force`
+        - view memory data with possible symbolic information `x/512a {addr} --force`
         - dump memory contents: `memory read {addr}`, or `x/100s {addr}`
-        - view loaded modules/libs: `image list`
+        - view problem instruction: `x/i {addr}`
+        - register reading: `re r {symbol}`
+        - read memory for raw stack data to check buffer overflow around return addresses: `x/100a $rsp`
+        - check if stack pointer(`rsp`) is in stack regions, stackoverflow case if not: `re r rsp`
+        - heap leaks: identify "section streams", dive in the little "streams", compare virtual memory maps over time
+        - dead lock: watch for `pthread_mutex_unlock` and `pthread_mutex_lock`
+        - load symbols: `target symbol add {path}`
+        - look up for functions in symbols: `image lookup -r -s {func|var}`
   
     > **during your debugging session, you cannot say something like, “This line of source code must be okay, since it didn’t cause a seg fault.”** 
     
@@ -214,11 +222,13 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
             //trace syste calls during execution, out of gdb
             dtrace/dtruss
             
+**More about memory access commands [here](https://sourceware.org/gdb/onlinedocs/gdb/Memory.html)**
+
 ### On DAM
 
 - Memory Leak
 - Allocation Request may fail
-- Access Errors
+- Access Errors/Violations (`MOV`,`PUSH`)
 
 #### Detection DAM problems
 
@@ -229,3 +239,13 @@ a terminal debugger for languages: `Assembly`, `C/C++`(gcc), `Python`, `Java`(gc
 ## Passphrase FAQ
 
 reference: [Use Secure Passphrase](http://www.iusmentis.com/security/passphrasefaq/)
+
+## References
+
+- <THE ART OF DEBUGGING with GDB, DDD, and Eclipse>, by Norman Matloff and Peter Jay Salzman
+- <Accelerated Mac OS X Core Dump Analysis>, by Dimitry Vostokov
+- [Software Diagnostics](http://www.dumpanalysis.org/)
+- [GDB and LLDB commands](https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/lldb-command-examples.html)
+- [GDB and WinDbg](http://www.dumpanalysis.org/rosetta-stone-debuggers)
+- [Debugging Materials](http://www.debugging.tv/)
+
