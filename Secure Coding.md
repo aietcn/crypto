@@ -242,8 +242,8 @@ reference: [Use Secure Passphrase](http://www.iusmentis.com/security/passphrasef
 
 ## References
 
-- <THE ART OF DEBUGGING with GDB, DDD, and Eclipse>, by Norman Matloff and Peter Jay Salzman
-- <Accelerated Mac OS X Core Dump Analysis>, by Dimitry Vostokov
+- _THE ART OF DEBUGGING with GDB, DDD, and Eclipse_, by Norman Matloff and Peter Jay Salzman
+- _Accelerated Mac OS X Core Dump Analysis_, by Dimitry Vostokov
 - [Software Diagnostics](http://www.dumpanalysis.org/)
 - [GDB and LLDB commands](https://developer.apple.com/library/mac/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/lldb-command-examples.html)
 - [GDB and WinDbg](http://www.dumpanalysis.org/rosetta-stone-debuggers)
